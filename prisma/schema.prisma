@@ -1,0 +1,54 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "mysql"
+  url = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  @@map("users")
+
+  id String @id @default(uuid())
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @default(now()) @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+  email String @unique
+  password String
+  employee Employee?
+}
+
+model Employee {
+  @@map("employees")
+
+  id String @id @default(uuid())
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @default(now()) @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+  name String
+  nrc String?
+  dob DateTime?
+  user User @relation(fields: [userId], references: [id])
+  userId String
+  leaveForms LeaveForm[]
+}
+
+model LeaveForm {
+  @@map("leave_forms")
+
+  id String @id @default(uuid())
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @default(now()) @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+  code String @default(cuid())
+  reason String?
+  leaveStartDate DateTime @map("leave_start_date")
+  leaveEndDate DateTime @map("leave_end_date")
+  isApproved Boolean @default(false) @map("is_approved")
+  employee Employee @relation(fields: [employeeId], references: [id])
+  employeeId String
+}
