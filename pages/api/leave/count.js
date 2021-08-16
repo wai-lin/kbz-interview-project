@@ -9,9 +9,21 @@ async function countUnApprovedLeaveForms() {
     .catch((e) => e);
 }
 
+async function countLeaveForms() {
+  return await prisma.leaveForm
+    .count()
+    .then((d) => d)
+    .catch((e) => e);
+}
+
 export default async function handler(req, res) {
   if (req.method === "GET") {
-    const leaveFormsCount = await countUnApprovedLeaveForms().catch((e) => e);
+    const isApproved = JSON.parse(req.query.isApproved);
+
+    const leaveFormsCount =
+      isApproved !== null
+        ? await countUnApprovedLeaveForms().catch((e) => e)
+        : await countLeaveForms().catch((e) => e);
 
     if (leaveFormsCount instanceof Error)
       return res.status(500).json({

@@ -20,7 +20,7 @@ export default function Dashboard(props) {
   }, [props, router]);
 
   const { employeesCountQuery } = useEmployeesCount();
-  const { leaveFormCountQuery } = useLeaveCount();
+  const { leaveFormCountQuery } = useLeaveCount({ isApproved: false });
 
   return (
     <AdminLayout>

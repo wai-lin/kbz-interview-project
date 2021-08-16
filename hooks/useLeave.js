@@ -1,9 +1,12 @@
 import { useMutation, useQuery } from "react-query";
 
-function useLeaveCount() {
+function useLeaveCount({ isApproved }) {
   const leaveFormCountQuery = useQuery(
-    ["unapproved-leave-forms-count"],
-    () => fetch(`/api/leave/count`).then((res) => res.json()),
+    ["unapproved-leave-forms-count", isApproved],
+    () =>
+      fetch(`/api/leave/count?isApproved=${isApproved}`).then((res) =>
+        res.json()
+      ),
     {
       refetchOnWindowFocus: false,
     }

@@ -59,7 +59,7 @@ function LeavesFormList() {
 
   const [query, dispatchQuery] = React.useReducer(queryReducer, initialQuery);
 
-  const { leaveFormCountQuery } = useLeaveCount();
+  const { leaveFormCountQuery } = useLeaveCount({ isApproved: null });
   const { leaveFormsQuery } = useLeaves(query);
   const { leaveFormUpdateMutation } = useUpdateLeave();
   const { leaveFormDeleteMutation } = useDeleteLeave();
