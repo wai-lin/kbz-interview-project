@@ -198,6 +198,7 @@ function LeavesFormList() {
           <Tr>
             <Th>Code</Th>
             <Th>Employee Name</Th>
+            <Th>Reason</Th>
             <Th>Start Date</Th>
             <Th>End Date</Th>
             <Th>Total Leave Days Count</Th>
@@ -209,6 +210,7 @@ function LeavesFormList() {
             <Tr key={leaveForm.id}>
               <Td>{leaveForm.code}</Td>
               <Td>{leaveForm.employee.name}</Td>
+              <Td>{leaveForm.reason}</Td>
               <Td>
                 {leaveForm.leaveStartDate
                   ? format(new Date(leaveForm.leaveStartDate), dateFormatStr)

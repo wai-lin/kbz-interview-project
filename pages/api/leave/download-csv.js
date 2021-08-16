@@ -36,7 +36,7 @@ export default async function handler(req, res) {
     }))
   );
 
-  const now = format(new Date(), "yyyy-MM-dd_hh,mm,ss,a");
+  const now = format(new Date(), "yyyy-MM-dd_hh-mm-ss-a");
   res.setHeader(
     "Content-disposition",
     `attachment; filename=leaves-report_${now}.csv`
