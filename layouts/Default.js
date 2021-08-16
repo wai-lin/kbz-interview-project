@@ -1,6 +1,11 @@
+import dynamic from "next/dynamic";
 import { Grid, GridItem } from "@chakra-ui/react";
-import { Header } from "../components/Header";
+
 import { Sidebar } from "../components/Sidebar";
+
+const HeaderWithNoSsr = dynamic(() => import("../components/Header"), {
+  ssr: false,
+});
 
 export default function DefaultLayout({ children }) {
   return (
@@ -26,7 +31,7 @@ export default function DefaultLayout({ children }) {
         borderBottom="1px"
         borderColor="gray.100"
       >
-        <Header />
+        <HeaderWithNoSsr />
       </GridItem>
       <GridItem rowSpan={3} colSpan={4} bg="gray.50" p="4" overflow="auto">
         {children}

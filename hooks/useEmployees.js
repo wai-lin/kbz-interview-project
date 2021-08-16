@@ -1,11 +1,11 @@
 import { useQuery } from "react-query";
 
-function useEmployees({ cursor = "", limit = "", search = "" }) {
+function useEmployees({ skip = 0, limit = "", search = "" }) {
   const employeesQuery = useQuery(
-    ["employees"],
+    ["employees", skip, limit, search],
     () => {
       let queryStr = "";
-      if (cursor) queryStr += `cursor=${cursor}&`;
+      if (skip === 0 || skip) queryStr += `skip=${skip}&`;
       if (limit) queryStr += `limit=${limit}&`;
       if (search) queryStr += `search=${search}&`;
       return fetch(`/api/users?${queryStr}`).then((res) => res.json());

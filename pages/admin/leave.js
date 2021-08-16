@@ -1,10 +1,9 @@
 import React from "react";
 import { useRouter } from "next/router";
-import { Box, Heading } from "@chakra-ui/react";
 
 import { getAuth, isAdminLoggedIn } from "../../lib/authHelper";
 import AdminLayout from "../../layouts/Admin";
-import { UnApprovedLeavesList } from "../../components/UnApprovedLeavesList";
+import { LeavesFormList } from "../../components/LeaveFormsList";
 
 export async function getServerSideProps({ req }) {
   const { isAdmin, isAuth } = getAuth(req.cookies);
@@ -20,7 +19,7 @@ export default function Leave(props) {
 
   return (
     <AdminLayout>
-      <UnApprovedLeavesList />
+      <LeavesFormList />
     </AdminLayout>
   );
 }

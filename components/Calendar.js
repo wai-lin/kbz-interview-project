@@ -1,7 +1,6 @@
 import React from "react";
-import styled from "@emotion/styled";
-import { useDatePicker, useDatePickerState } from "react-hook-pickers";
-import { format, isAfter, isBefore, isEqual } from "date-fns";
+import { useDatePickerProvider } from "react-hook-pickers";
+import { format } from "date-fns";
 import {
   Box,
   Button,
@@ -25,17 +24,9 @@ const dateCellStyle = {
   borderColor: "gray.100",
 };
 
-const DateCellEvent = styled(Box)({
-  borderRadius: "0.2rem",
-  padding: "0 4px",
-  fontSize: "10px",
-});
-
 function Calendar(props) {
-  const initialDate = new Date();
-  const datePickerState = useDatePickerState(initialDate);
-  const { getCalendarProps, getCalendarViewControllers } =
-    useDatePicker(datePickerState);
+  const { datePickerState, getCalendarProps, getCalendarViewControllers } =
+    useDatePickerProvider();
 
   const {
     daysOfWeek,
@@ -46,24 +37,6 @@ function Calendar(props) {
 
   const { goToPrevMonth, goToToday, goToNextMonth } =
     getCalendarViewControllers();
-
-  const leaveDayRenderer = (dateString) => {
-    return props.leaveDates.map(
-      ({ id, leaveStartDate, leaveEndDate, reason }) => {
-        const cellDate = new Date(dateString);
-        const startDate = new Date(leaveStartDate);
-        const endDate = new Date(leaveEndDate);
-
-        return isEqual(cellDate, startDate) ||
-          (isAfter(cellDate, startDate) && isBefore(cellDate, endDate)) ||
-          isEqual(cellDate, endDate) ? (
-          <DateCellEvent key={id} bg="lightsalmon" w="full" isTruncated>
-            {reason}
-          </DateCellEvent>
-        ) : null;
-      }
-    );
-  };
 
   return (
     <Box w="700px" mt="4">
@@ -119,19 +92,23 @@ function Calendar(props) {
             children,
             onClick,
             ...date
-          }) => (
-            <Flex
-              key={key}
-              {...dateCellStyle}
-              experimental_spaceY="1px"
-              color={day === 0 || day === 6 ? "red.500" : ""}
-              borderColor={isToday ? "purple.400" : "gray.100"}
-              {...date}
-            >
-              {children}
-              {leaveDayRenderer(dateString)}
-            </Flex>
-          )
+          }) => {
+            const isHoliday = props?.isHoliday && props.isHoliday(dateString);
+            return (
+              <Flex
+                key={key}
+                {...dateCellStyle}
+                experimental_spaceY="1px"
+                color={day === 0 || day === 6 || isHoliday ? "red.500" : ""}
+                fontWeight={isHoliday ? "700" : "400"}
+                borderColor={isToday ? "purple.400" : "gray.100"}
+                {...date}
+              >
+                {children}
+                {props?.eventRenderer && props.eventRenderer(dateString)}
+              </Flex>
+            );
+          }
         )}
         {fillUpDatesOfNextMonthBtnProps().map(
           ({ key, isToday, isSelected, dateString, children, ...date }) => (

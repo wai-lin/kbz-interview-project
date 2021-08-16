@@ -52,9 +52,15 @@ function AdminSidebar() {
             Leave Forms
           </Button>
         </Link>
-        <Button {...btnConfig} leftIcon={<CgCalendarToday />}>
-          Holidays
-        </Button>
+        <Link href="/admin/holidays" passHref>
+          <Button
+            {...btnConfig}
+            leftIcon={<CgCalendarToday />}
+            colorScheme={highlight("/admin/holidays")}
+          >
+            Holidays
+          </Button>
+        </Link>
       </Stack>
     </Box>
   );

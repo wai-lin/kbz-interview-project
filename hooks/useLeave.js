@@ -11,10 +11,16 @@ function useLeaveCount() {
   return { leaveFormCountQuery };
 }
 
-function useLeaves() {
+function useLeaves({ skip = 0, limit = 10, search = "" }) {
   const leaveFormsQuery = useQuery(
-    ["unapproved-leave-forms"],
-    () => fetch(`/api/leave`).then((res) => res.json()),
+    ["leave-forms", skip, limit, search],
+    () => {
+      let queryStr = "";
+      if (skip === 0 || skip) queryStr += `skip=${skip}&`;
+      if (limit) queryStr += `limit=${limit}&`;
+      if (search) queryStr += `search=${search}&`;
+      return fetch(`/api/leave?${queryStr}`).then((res) => res.json());
+    },
     {
       refetchOnWindowFocus: false,
     }

@@ -1,5 +1,6 @@
 import { Grid, GridItem } from "@chakra-ui/react";
-import { Header } from "../components/Header";
+
+import Header from "../components/Header";
 import { AdminSidebar } from "../components/AdminSidebar";
 
 export default function AdminLayout({ children }) {

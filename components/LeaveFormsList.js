@@ -1,6 +1,4 @@
 import React from "react";
-import Link from "next/link";
-import { useRouter } from "next/router";
 import { format, differenceInDays } from "date-fns";
 import {
   AlertDialog,
@@ -14,6 +12,8 @@ import {
   Flex,
   FormControl,
   FormLabel,
+  Heading,
+  IconButton,
   Input,
   Stack,
   Table,
@@ -24,27 +24,49 @@ import {
   Tr,
   useToast,
 } from "@chakra-ui/react";
-import { CgTrashEmpty, CgSoftwareDownload, CgCheck } from "react-icons/cg";
+import {
+  CgTrashEmpty,
+  CgCheck,
+  CgChevronLeft,
+  CgChevronRight,
+  CgSoftwareDownload,
+} from "react-icons/cg";
 
-import { useLeaves, useUpdateLeave, useDeleteLeave } from "../hooks/useLeave";
+import {
+  useLeaveCount,
+  useLeaves,
+  useUpdateLeave,
+  useDeleteLeave,
+} from "../hooks/useLeave";
 
 const dateFormatStr = "yyyy-MM-dd";
+const initialQuery = {
+  skip: 0,
+  limit: 10,
+  search: "",
+};
 
-function UnApprovedLeavesList() {
-  const router = useRouter();
+function queryReducer(state, action) {
+  state.skip = action.skip || 0;
+  state.limit = action.limit || 10;
+  state.search = action.search || "";
+
+  return { ...state };
+}
+
+function LeavesFormList() {
   const toast = useToast();
 
-  const { leaveFormsQuery } = useLeaves();
+  const [query, dispatchQuery] = React.useReducer(queryReducer, initialQuery);
+
+  const { leaveFormCountQuery } = useLeaveCount();
+  const { leaveFormsQuery } = useLeaves(query);
   const { leaveFormUpdateMutation } = useUpdateLeave();
   const { leaveFormDeleteMutation } = useDeleteLeave();
 
   const [toDelete, setToDelete] = React.useState("");
   const onClose = () => setToDelete("");
   const cancelRef = React.useRef();
-
-  // React.useEffect(() => {
-  //   refetch();
-  // }, [refetch, router.asPath, query]);
 
   const leaveForms = () => {
     if (leaveFormsQuery.data?.success) {
@@ -99,9 +121,13 @@ function UnApprovedLeavesList() {
       });
   };
 
+  const [search, setSearch] = React.useState("");
+  const totalPages =
+    Math.floor(leaveFormCountQuery.data?.data / query.limit) || 0;
+
   return (
     <>
-      {/* <Flex
+      <Flex
         alignItems="flex-end"
         justifyContent="space-between"
         p="4"
@@ -113,36 +139,63 @@ function UnApprovedLeavesList() {
           as="form"
           onSubmit={(e) => {
             e.preventDefault();
-            console.log("submit");
             dispatchQuery({
-              limit: 10,
+              ...query,
               search,
             });
           }}
         >
           <FormControl id="emp-name">
-            <FormLabel>Search with employee name</FormLabel>
+            <FormLabel>
+              Search with code, reason, email, employee name, nrc
+            </FormLabel>
             <Input
-              placeholder="employee name"
+              placeholder="code, reason, email, employee name, nrc"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               w="500px"
             />
           </FormControl>
         </Box>
-        <Button
-          as="a"
-          href="/api/users/download-csv"
-          leftIcon={<CgSoftwareDownload />}
-        >
-          Export Employees List
-        </Button>
-      </Flex> */}
+
+        <Stack direction="row">
+          <IconButton
+            disabled={query.skip === 0}
+            onClick={() => {
+              dispatchQuery({
+                limit: query.limit,
+                skip: query.skip - query.limit,
+                search: query.search,
+              });
+            }}
+          >
+            <CgChevronLeft />
+          </IconButton>
+          <IconButton
+            disabled={totalPages === 0 || query.skip > totalPages}
+            onClick={() => {
+              dispatchQuery({
+                limit: query.limit,
+                skip: query.skip + query.limit,
+                search: query.search,
+              });
+            }}
+          >
+            <CgChevronRight />
+          </IconButton>
+          <Button
+            as="a"
+            href="/api/leave/download-csv"
+            leftIcon={<CgSoftwareDownload />}
+          >
+            Download Leave Report
+          </Button>
+        </Stack>
+      </Flex>
 
       <Table>
         <Thead>
           <Tr>
-            <Th>No</Th>
             <Th>Code</Th>
             <Th>Employee Name</Th>
             <Th>Start Date</Th>
@@ -152,9 +205,8 @@ function UnApprovedLeavesList() {
           </Tr>
         </Thead>
         <Tbody>
-          {leaveForms().map((leaveForm, idx) => (
+          {leaveForms().map((leaveForm) => (
             <Tr key={leaveForm.id}>
-              <Td>{idx + 1}</Td>
               <Td>{leaveForm.code}</Td>
               <Td>{leaveForm.employee.name}</Td>
               <Td>
@@ -175,15 +227,17 @@ function UnApprovedLeavesList() {
               </Td>
               <Td>
                 <Stack>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    colorScheme="green"
-                    leftIcon={<CgCheck />}
-                    onClick={() => approveLeaveForm(leaveForm.id)}
-                  >
-                    Approve
-                  </Button>
+                  {!leaveForm.isApproved && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      colorScheme="green"
+                      leftIcon={<CgCheck />}
+                      onClick={() => approveLeaveForm(leaveForm.id)}
+                    >
+                      Approve
+                    </Button>
+                  )}
                   <Button
                     size="sm"
                     variant="outline"
@@ -197,7 +251,9 @@ function UnApprovedLeavesList() {
               </Td>
             </Tr>
           ))}
-          {!leaveFormsQuery.data?.success && (
+          {(!leaveFormsQuery.data?.success ||
+            leaveFormsQuery.data?.data === null ||
+            leaveFormsQuery.data?.data.length === 0) && (
             <Tr>
               <Td>No leave forms found.</Td>
             </Tr>
@@ -235,4 +291,4 @@ function UnApprovedLeavesList() {
   );
 }
 
-export { UnApprovedLeavesList };
+export { LeavesFormList };

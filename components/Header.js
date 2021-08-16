@@ -14,9 +14,9 @@ function Header() {
     if (router.pathname.includes("/admin/dashboard")) return "Dashboard";
     if (router.pathname.includes("/admin/employee")) return "Employees";
     if (router.pathname.includes("/admin/leave")) return "Leave Forms";
-    if (router.pathname.includes("/leave"))
-      return loggedInUser?.employee?.name || "";
-    return "";
+    if (router.pathname.includes("/admin/holidays")) return "Holidays";
+    if (router.pathname.includes("/leave")) return loggedInUser?.employee?.name;
+    return null;
   };
 
   return (
@@ -42,4 +42,4 @@ function Header() {
   );
 }
 
-export { Header };
+export default Header;

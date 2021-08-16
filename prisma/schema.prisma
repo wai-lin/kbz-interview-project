@@ -52,3 +52,15 @@ model LeaveForm {
   employee Employee @relation(fields: [employeeId], references: [id])
   employeeId String
 }
+
+model PublicHoliday {
+  @@map("public_holidays")
+
+  id String @id @default(uuid())
+  createdAt DateTime? @default(now()) @map("created_at")
+  updatedAt DateTime? @default(now()) @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+  name String
+  startDate DateTime @map("start_date")
+  endDate DateTime @map("end_date")
+}

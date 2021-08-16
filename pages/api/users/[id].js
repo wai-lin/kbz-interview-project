@@ -43,7 +43,6 @@ export default async function handler(req, res) {
     const deleteUser = await dangerouslyDeleteUserById(req.query.id).catch(
       (e) => e
     );
-    console.log(deleteUser);
 
     if (deleteUser instanceof Error)
       return res.status(500).json({

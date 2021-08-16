@@ -1,22 +1,36 @@
-import { prisma } from "../../lib/prisma";
+import { prisma } from "../../../lib/prisma";
 
 async function findUsers(query) {
-  const { cursor, limit, search } = query;
+  const { skip, limit, search } = query;
 
   return await prisma.user
     .findMany({
-      cursor: cursor ? { id: cursor } : undefined,
+      skip: skip ? Number(skip) : 0,
+      take: limit ? Number(limit) : 10,
       where: {
         email: { not: "admin@gmail.com" },
-        employee: {
-          name: search ? { contains: search } : undefined,
-        },
+        OR: search
+          ? [
+              {
+                email: { contains: search },
+              },
+              {
+                employee: {
+                  name: { contains: search },
+                },
+              },
+              {
+                employee: {
+                  nrc: { contains: search },
+                },
+              },
+            ]
+          : undefined,
       },
       orderBy: [{ createdAt: "desc" }, { email: "asc" }],
       include: {
         employee: true,
       },
-      take: limit ? Number(limit) : 10,
     })
     .then((found) => found)
     .catch((e) => e);

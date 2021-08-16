@@ -1,9 +1,34 @@
-import { prisma } from "../../lib/prisma";
+import { prisma } from "../../../lib/prisma";
 
-async function findUnApprovedLeaves() {
+async function findLeaveForms({ limit, skip, search }) {
   return await prisma.leaveForm
     .findMany({
-      where: { isApproved: false },
+      skip: skip ? Number(skip) : 0,
+      take: limit ? Number(limit) : 10,
+      orderBy: [{ isApproved: "asc" }, { createdAt: "desc" }],
+      where: search
+        ? {
+            OR: [
+              { code: { contains: search } },
+              { reason: { contains: search } },
+              {
+                employee: {
+                  name: { contains: search },
+                },
+              },
+              {
+                employee: {
+                  nrc: { contains: search },
+                },
+              },
+              {
+                employee: {
+                  user: { email: { contains: search } },
+                },
+              },
+            ],
+          }
+        : undefined,
       include: {
         employee: true,
       },
@@ -28,7 +53,7 @@ async function createLeave(leaveForm) {
 
 export default async function handler(req, res) {
   if (req.method === "GET") {
-    const foundLeaveForms = await findUnApprovedLeaves().catch((e) => e);
+    const foundLeaveForms = await findLeaveForms(req.query).catch((e) => e);
 
     if (foundLeaveForms instanceof Error)
       return res.status(500).json({
@@ -48,7 +73,7 @@ export default async function handler(req, res) {
     const createdLeave = await createLeave(JSON.parse(req.body)).catch(
       (e) => e
     );
-    console.log(createdLeave);
+
     if (createdLeave instanceof Error)
       return res.status(500).json({
         success: false,

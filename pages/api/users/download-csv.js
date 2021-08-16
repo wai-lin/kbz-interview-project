@@ -1,5 +1,7 @@
-import { prisma } from "../../../lib/prisma";
+import { format } from "date-fns";
 import papaparse from "papaparse";
+
+import { prisma } from "../../../lib/prisma";
 
 export default async function handler(req, res) {
   const foundUsers = await prisma.user
@@ -26,9 +28,10 @@ export default async function handler(req, res) {
     }))
   );
 
+  const now = format(new Date(), "yyyy-MM-dd_hh,mm,ss,a");
   res.setHeader(
     "Content-disposition",
-    "attachment; filename=employees-list.csv"
+    `attachment; filename=employees-list_${now}.csv`
   );
   res.setHeader("Content-Type", "text/csv");
   return res.status(200).send(csv);

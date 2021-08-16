@@ -14,7 +14,9 @@ import {
   Flex,
   FormControl,
   FormLabel,
+  IconButton,
   Input,
+  Stack,
   Table,
   Tbody,
   Td,
@@ -23,19 +25,25 @@ import {
   Tr,
   useToast,
 } from "@chakra-ui/react";
-import { CgPen, CgTrashEmpty, CgSoftwareDownload } from "react-icons/cg";
+import {
+  CgPen,
+  CgTrashEmpty,
+  CgSoftwareDownload,
+  CgChevronLeft,
+  CgChevronRight,
+} from "react-icons/cg";
 
-import { useEmployees } from "../hooks/useEmployees";
+import { useEmployees, useEmployeesCount } from "../hooks/useEmployees";
 import { useDeleteUser } from "../hooks/useUser";
 
 const initialQuery = {
-  cursor: "",
+  skip: 0,
   limit: 10,
   search: "",
 };
 
 function queryReducer(state, action) {
-  state.cursor = action.cursor || "";
+  state.skip = action.skip || 0;
   state.limit = action.limit || 10;
   state.search = action.search || "";
 
@@ -48,6 +56,7 @@ function EmployeeList() {
 
   const [query, dispatchQuery] = React.useReducer(queryReducer, initialQuery);
 
+  const { employeesCountQuery } = useEmployeesCount();
   const { employeesQuery } = useEmployees(query);
   const { deleteUserMutation } = useDeleteUser();
 
@@ -91,6 +100,8 @@ function EmployeeList() {
   };
 
   const [search, setSearch] = React.useState("");
+  const totalPages =
+    Math.floor(employeesCountQuery.data?.data / query.limit) || 0;
 
   return (
     <>
@@ -106,36 +117,61 @@ function EmployeeList() {
           as="form"
           onSubmit={(e) => {
             e.preventDefault();
-            console.log("submit");
             dispatchQuery({
-              limit: 10,
+              ...query,
               search,
             });
           }}
         >
           <FormControl id="emp-name">
-            <FormLabel>Search with employee name</FormLabel>
+            <FormLabel>Search with email, employee name, nrc</FormLabel>
             <Input
-              placeholder="employee name"
+              placeholder="email, employee name, nrc"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               w="500px"
             />
           </FormControl>
         </Box>
-        <Button
-          as="a"
-          href="/api/users/download-csv"
-          leftIcon={<CgSoftwareDownload />}
-        >
-          Export Employees List
-        </Button>
+
+        <Stack direction="row">
+          <IconButton
+            disabled={query.skip === 0}
+            onClick={() => {
+              dispatchQuery({
+                limit: query.limit,
+                skip: query.skip - query.limit,
+                search: query.search,
+              });
+            }}
+          >
+            <CgChevronLeft />
+          </IconButton>
+          <IconButton
+            disabled={totalPages === 0 || query.skip > totalPages}
+            onClick={() => {
+              dispatchQuery({
+                limit: query.limit,
+                skip: query.skip + query.limit,
+                search: query.search,
+              });
+            }}
+          >
+            <CgChevronRight />
+          </IconButton>
+          <Button
+            as="a"
+            href="/api/users/download-csv"
+            leftIcon={<CgSoftwareDownload />}
+          >
+            Export Employees List
+          </Button>
+        </Stack>
       </Flex>
 
       <Table>
         <Thead>
           <Tr>
-            <Th>No</Th>
             <Th>Name</Th>
             <Th>Email</Th>
             <Th>NRC</Th>
@@ -144,9 +180,8 @@ function EmployeeList() {
           </Tr>
         </Thead>
         <Tbody>
-          {users().map((user, idx) => (
+          {users().map((user) => (
             <Tr key={user.id}>
-              <Td>{idx + 1}</Td>
               <Td>{user?.employee?.name || ""}</Td>
               <Td>{user?.email || ""}</Td>
               <Td>{user?.employee?.nrc || ""}</Td>
@@ -185,7 +220,9 @@ function EmployeeList() {
               </Td>
             </Tr>
           ))}
-          {!employeesQuery.data?.success && (
+          {(!employeesQuery.data?.success ||
+            employeesQuery.data?.data === null ||
+            employeesQuery.data?.data.length === 0) && (
             <Tr>
               <Td>No employee found.</Td>
             </Tr>
