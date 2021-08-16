@@ -94,6 +94,7 @@ function Calendar(props) {
             ...date
           }) => {
             const isHoliday = props?.isHoliday && props.isHoliday(dateString);
+
             return (
               <Flex
                 key={key}

@@ -78,17 +78,20 @@ export default function Holidays(props) {
             });
           }}
           isHoliday={(dateString) => {
-            return holidaysQuery.data?.data.map((holiday) => {
-              const cellDate = new Date(dateString);
-              const startDate = new Date(holiday.startDate);
-              const endDate = new Date(holiday.endDate);
+            return holidaysQuery.data?.data
+              .map((holiday) => {
+                const cellDate = new Date(dateString);
+                const startDate = new Date(holiday.startDate);
+                const endDate = new Date(holiday.endDate);
+                const isHoliday =
+                  isEqual(cellDate, startDate) ||
+                  isEqual(cellDate, endDate) ||
+                  (isAfter(cellDate, startDate) && isBefore(cellDate, endDate));
+                console.log({ dateString, isHoliday });
 
-              return (
-                isEqual(cellDate, startDate) ||
-                isEqual(cellDate, endDate) ||
-                (isAfter(cellDate, startDate) && isBefore(cellDate, endDate))
-              );
-            })[0];
+                return isHoliday;
+              })
+              .reduce((curr, acc) => curr || acc);
           }}
         />
       </DatePickerProvider>

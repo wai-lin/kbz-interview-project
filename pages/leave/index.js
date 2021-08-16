@@ -130,17 +130,19 @@ export default function Leave(props) {
             return holidays ? [...holidays, ...leaveDays] : [...leaveDays];
           }}
           isHoliday={(dateString) => {
-            return holidaysQuery.data?.data.map((holiday) => {
-              const cellDate = new Date(dateString);
-              const startDate = new Date(holiday.startDate);
-              const endDate = new Date(holiday.endDate);
+            return holidaysQuery.data?.data
+              .map((holiday) => {
+                const cellDate = new Date(dateString);
+                const startDate = new Date(holiday.startDate);
+                const endDate = new Date(holiday.endDate);
 
-              return isEqual(cellDate, startDate) ||
-                isEqual(cellDate, endDate) ||
-                (isAfter(cellDate, startDate) && isBefore(cellDate, endDate))
-                ? true
-                : false;
-            })[0];
+                return isEqual(cellDate, startDate) ||
+                  isEqual(cellDate, endDate) ||
+                  (isAfter(cellDate, startDate) && isBefore(cellDate, endDate))
+                  ? true
+                  : false;
+              })
+              .reduce((curr, acc) => curr || acc);
           }}
         />
       </DatePickerProvider>
