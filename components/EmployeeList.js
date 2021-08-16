@@ -38,7 +38,7 @@ import { useDeleteUser } from "../hooks/useUser";
 
 const initialQuery = {
   skip: 0,
-  limit: 2,
+  limit: 10,
   search: "",
 };
 
