@@ -142,7 +142,7 @@ export default function Leave(props) {
                   ? true
                   : false;
               })
-              .reduce((curr, acc) => curr || acc);
+              .reduce((curr, acc) => curr || acc, false);
           }}
         />
       </DatePickerProvider>

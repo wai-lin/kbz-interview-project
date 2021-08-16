@@ -87,11 +87,10 @@ export default function Holidays(props) {
                   isEqual(cellDate, startDate) ||
                   isEqual(cellDate, endDate) ||
                   (isAfter(cellDate, startDate) && isBefore(cellDate, endDate));
-                console.log({ dateString, isHoliday });
 
                 return isHoliday;
               })
-              .reduce((curr, acc) => curr || acc);
+              .reduce((curr, acc) => curr || acc, false);
           }}
         />
       </DatePickerProvider>
